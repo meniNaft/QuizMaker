@@ -6,16 +6,17 @@ namespace QuizMaker.Services
     internal class XMLService
     {
         private readonly XDocument xDoc;
-        public XElement Root { get; }
+        private XElement Root { get; }
         private readonly string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         private readonly string xmlPath;
 
         public XMLService(string[] XMLPathFromCurrentDir)
         {
             xmlPath = BuildPath(XMLPathFromCurrentDir);
-            xDoc = XDocument.Load(xmlPath);
+            //ensure the path directory is exist
+            if (!Directory.Exists(xmlPath)) Directory.CreateDirectory(xmlPath);
+            xDoc = File.Exists(xmlPath) ? XDocument.Load(xmlPath): new XDocument(new XElement("Data"));
             Root = xDoc.Root ?? throw new Exception("no root element existing");
-
         }
         private string BuildPath(params string[] xmlPath)
         {
