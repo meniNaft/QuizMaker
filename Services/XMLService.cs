@@ -1,21 +1,20 @@
 ﻿using QuizMaker.Models;
-using System.Xml;
 using System.Xml.Linq;
 
 namespace QuizMaker.Services
 {
     internal class XMLService
     {
-        private readonly XmlDocument xmlDoc;
-        public XmlNode Root { get; }
+        private readonly XDocument xDoc;
+        public XElement Root { get; }
         private readonly string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         private readonly string xmlPath;
 
         public XMLService(string[] XMLPathFromCurrentDir)
         {
             xmlPath = BuildPath(XMLPathFromCurrentDir);
-            xmlDoc = LoadXML();
-            Root = xmlDoc.DocumentElement ?? throw new Exception("no root element existing");
+            xDoc = XDocument.Load(xmlPath);
+            Root = xDoc.Root ?? throw new Exception("no root element existing");
 
         }
         private string BuildPath(params string[] xmlPath)
@@ -26,23 +25,25 @@ namespace QuizMaker.Services
             return Path.Combine(fullPath);
         }
 
-        private XmlDocument LoadXML()
-        {
-            XmlDocument xmlDoc = new();
-            using (FileStream fileStream = new (xmlPath, FileMode.Open, FileAccess.Read))
-            {
-                xmlDoc.Load(fileStream);
-            }
-            return xmlDoc;
-        }
-
         public void WriteXML(QuestionItem item)
         {
             var question = new XElement("question", item.Question);
             var answer = new XElement("answer", item.Answer);
             var newItem = new XElement("item", question, answer);
-            Root.AppendChild(xmlDoc.ReadNode(newItem.CreateReader())!);
-            xmlDoc.Save(xmlPath);
+            Root.Add(newItem);
+            xDoc.Save(xmlPath);
+        }
+
+        public List<QuestionItem> LoadCildren()
+        {
+            List<QuestionItem> temp = [];
+            foreach (XElement item in Root.Elements())
+            {
+                string question = item.Element("question")!.Value;
+                string answer = item.Element("answer")!.Value;
+                temp.Add(new QuestionItem(question, answer));
+            }
+            return temp;
         }
     }
 }

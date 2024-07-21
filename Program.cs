@@ -1,6 +1,5 @@
 ﻿using QuizMaker.Models;
 using QuizMaker.Services;
-using System.Xml;
 
 namespace QuizMaker
 {
@@ -10,7 +9,7 @@ namespace QuizMaker
        static List<QuestionItem> questionItems = [];
         static void Main(string[] args)
         {
-           questionItems = LoadCildren();
+           questionItems = xmlService.LoadCildren();
             while (true)
             {
                 Console.WriteLine("select action: \n1. Create Question\n2. Answer Question\n0. to close the program");
@@ -89,18 +88,7 @@ namespace QuizMaker
             }
 
         }
-        static List<QuestionItem> LoadCildren()
-        {
-            List<QuestionItem> temp = [];
-            var root = xmlService.Root;
-            foreach (XmlNode item in root.ChildNodes)
-            {
-                string question = item["question"]!.InnerText;
-                string answer = item["answer"]!.InnerText;
-                temp.Add(new QuestionItem(question, answer));   
-            }
-            return temp;
-        }
+        
     }
     
 }
