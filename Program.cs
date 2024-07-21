@@ -32,6 +32,7 @@ namespace QuizMaker
                     }
                 }
                 else Console.WriteLine("invalid selection");
+                Console.WriteLine("\n***************************\n");
             }
         }
 
