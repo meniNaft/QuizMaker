@@ -7,7 +7,7 @@ namespace QuizMaker.Services
     internal class XMLService
     {
         private readonly XmlDocument xmlDoc;
-        private readonly XmlNode root;
+        public XmlNode Root { get; }
         private readonly string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         private readonly string xmlPath;
 
@@ -15,7 +15,7 @@ namespace QuizMaker.Services
         {
             xmlPath = BuildPath(XMLPathFromCurrentDir);
             xmlDoc = LoadXML();
-            root = xmlDoc.DocumentElement ?? throw new Exception("no root element existing");
+            Root = xmlDoc.DocumentElement ?? throw new Exception("no root element existing");
 
         }
         private string BuildPath(params string[] xmlPath)
@@ -36,14 +36,12 @@ namespace QuizMaker.Services
             return xmlDoc;
         }
 
-        public XmlNode GetRootElement() => root;
-
         public void WriteXML(QuestionItem item)
         {
             var question = new XElement("question", item.Question);
             var answer = new XElement("answer", item.Answer);
             var newItem = new XElement("item", question, answer);
-            root.AppendChild(xmlDoc.ReadNode(newItem.CreateReader())!);
+            Root.AppendChild(xmlDoc.ReadNode(newItem.CreateReader())!);
             xmlDoc.Save(xmlPath);
         }
     }

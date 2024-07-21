@@ -92,7 +92,7 @@ namespace QuizMaker
         static List<QuestionItem> LoadCildren()
         {
             List<QuestionItem> temp = [];
-            var root = xmlService.GetRootElement();
+            var root = xmlService.Root;
             foreach (XmlNode item in root.ChildNodes)
             {
                 string question = item["question"]!.InnerText;
