@@ -1,23 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using QuizMaker.Models;
 using System.Xml;
-using System.Xml.Linq;
 
 namespace QuizMaker.Services
 {
     internal class XMLService
     {
-        private XmlDocument activeDoc;
+        private XmlDocument xmlDoc;
+        private XmlNode root;
         private string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         string xmlPath;
 
         public XMLService(string[] XMLPathFromCurrentDir)
         {
             xmlPath = BuildPath(XMLPathFromCurrentDir);
-            activeDoc = LoadXML();
+            xmlDoc = LoadXML();
+            root = xmlDoc.DocumentElement;
 
         }
         private string BuildPath(params string[] xmlPath)
@@ -40,23 +37,19 @@ namespace QuizMaker.Services
             return xmlDoc;
         }
 
-        public XmlNode GetNodeByName(string name) 
-        { 
-            var res = activeDoc.SelectSingleNode(name);
-            if(res == null)
-            {
-                throw new Exception($"Node '{name}' not found.");
-            }
-            else
-            {
-                return res;
-            }
-        }
+        public XmlNode GetRootElement() => root;
 
-        public void WriteXML()
+        public void WriteXML(QuestionItem item)
         {
-
+            var newItem = xmlDoc.CreateElement("item");
+            var newQuestion = xmlDoc.CreateElement("question");
+            newQuestion.InnerText = item.Question;
+            var newAnswer = xmlDoc.CreateElement("answer");
+            newAnswer.InnerText = item.Answer;
+            newItem.AppendChild(newQuestion);
+            newItem.AppendChild(newAnswer);
+            root.AppendChild(newItem);
+            xmlDoc.Save(xmlPath);
         }
-
     }
 }
