@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <None Update="Data\Data.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

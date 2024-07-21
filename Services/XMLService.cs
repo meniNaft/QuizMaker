@@ -1,36 +1,35 @@
 ﻿using QuizMaker.Models;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace QuizMaker.Services
 {
     internal class XMLService
     {
-        private XmlDocument xmlDoc;
-        private XmlNode root;
-        private string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        string xmlPath;
+        private readonly XmlDocument xmlDoc;
+        private readonly XmlNode root;
+        private readonly string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        private readonly string xmlPath;
 
         public XMLService(string[] XMLPathFromCurrentDir)
         {
             xmlPath = BuildPath(XMLPathFromCurrentDir);
             xmlDoc = LoadXML();
-            root = xmlDoc.DocumentElement;
+            root = xmlDoc.DocumentElement ?? throw new Exception("no root element existing");
 
         }
         private string BuildPath(params string[] xmlPath)
         {
-            // Create an array that includes the base directory and the xmlPath elements
             string[] fullPath = new string[xmlPath.Length + 1];
             fullPath[0] = baseDirectory;
             Array.Copy(xmlPath, 0, fullPath, 1, xmlPath.Length);
-            // Combine all the elements into a single path
             return Path.Combine(fullPath);
         }
 
         private XmlDocument LoadXML()
         {
-            XmlDocument xmlDoc = new XmlDocument();
-            using (FileStream fileStream = new FileStream(xmlPath, FileMode.Open, FileAccess.Read))
+            XmlDocument xmlDoc = new();
+            using (FileStream fileStream = new (xmlPath, FileMode.Open, FileAccess.Read))
             {
                 xmlDoc.Load(fileStream);
             }
@@ -41,14 +40,10 @@ namespace QuizMaker.Services
 
         public void WriteXML(QuestionItem item)
         {
-            var newItem = xmlDoc.CreateElement("item");
-            var newQuestion = xmlDoc.CreateElement("question");
-            newQuestion.InnerText = item.Question;
-            var newAnswer = xmlDoc.CreateElement("answer");
-            newAnswer.InnerText = item.Answer;
-            newItem.AppendChild(newQuestion);
-            newItem.AppendChild(newAnswer);
-            root.AppendChild(newItem);
+            var question = new XElement("question", item.Question);
+            var answer = new XElement("answer", item.Answer);
+            var newItem = new XElement("item", question, answer);
+            root.AppendChild(xmlDoc.ReadNode(newItem.CreateReader())!);
             xmlDoc.Save(xmlPath);
         }
     }
